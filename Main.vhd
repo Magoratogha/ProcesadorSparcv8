@@ -27,9 +27,9 @@ architecture SPARCV8 of Main is
 	
 	COMPONENT IM
 		Port ( 
-			  address : in  STD_LOGIC_VECTOR (31 downto 0);
-           reset : in  STD_LOGIC;
-           outInst : out  STD_LOGIC_VECTOR (31 downto 0));
+			  	address : in  STD_LOGIC_VECTOR (31 downto 0);
+           		  	reset : in  STD_LOGIC;
+           			outInst : out  STD_LOGIC_VECTOR (31 downto 0));
 	END COMPONENT;
 	
 	
