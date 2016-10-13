@@ -27,10 +27,10 @@ begin
 				AluResult <= operando1 and operando2;
 			when "000100" => -- xor
 				AluResult <= operando1 xor operando2;
-			when "000101" => -- nor
-				AluResult <= operando1 nor operando2;
+			when "000101" => -- orn
+				AluResult <= operando1 or not(operando2);
 			when "000110" => -- andn
-				AluResult <= operando1 nand operando2;
+				AluResult <= operando1 and not(operando2);
 			when "000111" => --xnor
 				AluResult <= operando1 xnor operando2;
 			when others => -- Cae el nop
