@@ -11,6 +11,7 @@ architecture SPARCV8 of Main is
 
 	COMPONENT ALU
 		Port ( 
+				c : in  STD_LOGIC;
 				operando1 : in  STD_LOGIC_VECTOR (31 downto 0);
 				operando2 : in  STD_LOGIC_VECTOR (31 downto 0);
 				aluOP : in  STD_LOGIC_VECTOR (5 downto 0);
@@ -28,8 +29,8 @@ architecture SPARCV8 of Main is
 	COMPONENT IM
 		Port ( 
 			  	address : in  STD_LOGIC_VECTOR (31 downto 0);
-           		  	reset : in  STD_LOGIC;
-           			outInst : out  STD_LOGIC_VECTOR (31 downto 0));
+           	reset : in  STD_LOGIC;
+           	outInst : out  STD_LOGIC_VECTOR (31 downto 0));
 	END COMPONENT;
 	
 	
@@ -54,9 +55,9 @@ architecture SPARCV8 of Main is
 	COMPONENT RF
 		Port ( 
 				reset : in  STD_LOGIC;
-				rs1 : in  STD_LOGIC_VECTOR (4 downto 0);
-				rs2 : in  STD_LOGIC_VECTOR (4 downto 0);
-				rd: in  STD_LOGIC_VECTOR (4 downto 0);
+				rs1 : in  STD_LOGIC_VECTOR (5 downto 0);
+				rs2 : in  STD_LOGIC_VECTOR (5 downto 0);
+				rd: in  STD_LOGIC_VECTOR (5 downto 0);
 				dato : in STD_LOGIC_VECTOR (31 downto 0);
 				crs1 : out  STD_LOGIC_VECTOR (31 downto 0);
 				crs2 : out  STD_LOGIC_VECTOR (31 downto 0));
@@ -79,8 +80,47 @@ architecture SPARCV8 of Main is
 	END COMPONENT;
 	
 	
+	COMPONENT PSR
+		Port ( 
+				CLK : in  STD_LOGIC;
+				Reset : in  STD_LOGIC;
+				nzvc : in  STD_LOGIC_VECTOR (3 downto 0);
+				nCWP : in  STD_LOGIC;
+				CWP : out  STD_LOGIC;
+				c: out STD_LOGIC);
+	END COMPONENT;
+	
+	
+	COMPONENT PSRModifier
+		Port ( 
+				rst : in STD_LOGIC;
+				aluResult : in STD_LOGIC_VECTOR (31 downto 0);
+				operando1 : in STD_LOGIC_VECTOR (31 downto 0);
+				operando2 : in STD_LOGIC_VECTOR (31 downto 0);
+				aluOp : in STD_LOGIC_VECTOR (5 downto 0);
+				nzvc : out STD_LOGIC_VECTOR (3 downto 0));
+	END COMPONENT;
+	
+	
+	COMPONENT WindowsManager
+		Port ( 
+				rs1 : in  STD_LOGIC_VECTOR (4 downto 0);
+				rs2 : in  STD_LOGIC_VECTOR (4 downto 0);
+				rd : in  STD_LOGIC_VECTOR (4 downto 0);
+				cwp : in  STD_LOGIC;
+				op : in  STD_LOGIC_VECTOR (1 downto 0);
+				op3 : in  STD_LOGIC_VECTOR (5 downto 0);
+				ncwp : out  STD_LOGIC;
+				nrs1 : out  STD_LOGIC_VECTOR (5 downto 0);
+				nrs2 : out  STD_LOGIC_VECTOR (5 downto 0);
+				nrd : out  STD_LOGIC_VECTOR (5 downto 0));
+	END COMPONENT;
+	
+	
 	signal SumNPC, NpcPc, PCIM, IMO, RFALU, RFMUX, SEUMUX, MUXALU, ALURF : STD_LOGIC_VECTOR (31 downto 0) := "00000000000000000000000000000000";
-	signal CUALU : STD_LOGIC_VECTOR (5 downto 0) := "000000";
+	signal CUALU, WMRF1, WMRF2, WMRF3 : STD_LOGIC_VECTOR (5 downto 0) := "000000";
+	signal ICC : STD_LOGIC_VECTOR (3 downto 0) := "0000";
+	signal WMPSR, PSRWM, PSRALU : STD_LOGIC := '0';
 	
 	
 begin
@@ -118,9 +158,9 @@ begin
 		  
 	RF1: RF PORT MAP (
 				reset => Rst,
-				rs1 => IMO(18 downto 14),
-				rs2 => IMO(4 downto 0),
-				rd => IMO(29 downto 25),
+				rs1 => WMRF1,
+				rs2 => WMRF2,
+				rd => WMRF3,
 				dato => ALURF,
 				crs1 => RFALU,
 				crs2=> RFMUX
@@ -149,13 +189,48 @@ begin
 		  
 	
 	ALU1: ALU PORT MAP (
+				c => PSRALU,
 				operando1 => RFALU,
 				operando2 => MUXALU,
 				aluOP => CUALU,
 				AluResult => ALURF
         );
-		  
 	ALUResult <= ALURF;
+		  
+	
+	PSR1: PSR PORT MAP (
+				CLK => Clk,
+				Reset => Rst,
+				nzvc => ICC,
+				nCWP => WMPSR,
+				CWP => PSRWM,
+				c => PSRALU
+        );
+		  
+		  
+	PSRM: PSRModifier PORT MAP (
+				rst => Rst,
+				aluResult => ALURF,
+				operando1 => RFALU,
+				operando2 => MUXALU,
+				aluOp => CUALU,
+				nzvc => ICC
+        );
+		  
+		  
+	WM: WindowsManager PORT MAP (
+				rs1 => IMO(18 downto 14),
+				rs2 => IMO(4 downto 0),
+				rd => IMO(29 downto 25),
+				cwp => PSRWM,
+				op => IMO(31 downto 30),
+				op3 => IMO(24 downto 19),
+				ncwp => WMPSR,
+				nrs1 => WMRF1,
+				nrs2 => WMRF2,
+				nrd => WMRF3
+        );
+		  
 
 
 end SPARCV8;

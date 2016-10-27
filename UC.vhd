@@ -31,6 +31,32 @@ begin
 							ALUOP <= "000110";
 						when "000111" => -- XNOR
 							ALUOP <= "000111";
+							
+						when "010000" => -- ADDcc
+							ALUOP <= "001000";
+						when "010100" => -- SUBcc
+							ALUOP <= "001001";
+						when "001000" => -- ADDx
+							ALUOP <= "001010";
+						when "011000" => -- ADDxcc
+							ALUOP <= "001011";
+						when "001100" => -- SUBx
+							ALUOP <= "001100";
+						when "011100" => -- SUBxcc
+							ALUOP <= "001101";
+						when "010010" => -- ORcc
+							ALUOP <= "001110";
+						when "010001" => -- ANDcc
+							ALUOP <= "001111";
+						when "010011" => -- XORcc
+							ALUOP <= "010000";
+						when "010101" => -- ANDNcc
+							ALUOP <= "010001";
+						when "010110" => -- ORNcc
+							ALUOP <= "010010";
+						when "010111" => -- XNORcc
+							ALUOP <= "010011";
+							
 						when others => 
 							ALUOP <= "111111";
 					end case;	
