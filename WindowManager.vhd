@@ -11,7 +11,7 @@ entity WindowsManager is
            cwp : in  STD_LOGIC;
            op : in  STD_LOGIC_VECTOR (1 downto 0);
            op3 : in  STD_LOGIC_VECTOR (5 downto 0);
-           ncwp : out  STD_LOGIC;
+           ncwp : out  STD_LOGIC := '0';
            nrs1 : out  STD_LOGIC_VECTOR (5 downto 0);
            nrs2 : out  STD_LOGIC_VECTOR (5 downto 0);
            nrd : out  STD_LOGIC_VECTOR (5 downto 0)
