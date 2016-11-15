@@ -2,32 +2,32 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
 entity PSR is
-    Port ( CLK : in  STD_LOGIC;
-           Reset : in  STD_LOGIC;
-           nzvc : in  STD_LOGIC_VECTOR (3 downto 0);
-           nCWP : in  STD_LOGIC;
-           CWP : out  STD_LOGIC;
-			  c: out STD_LOGIC);
+    Port ( nzvc : in  STD_LOGIC_VECTOR (3 downto 0);
+           reset : in  STD_LOGIC;
+           clk : in  STD_LOGIC;
+			  ncwp: in STD_LOGIC;
+			  icc : out STD_LOGIC_VECTOR (3 downto 0);
+           carry : out  STD_LOGIC;
+			  cwp : out STD_LOGIC);
 end PSR;
 
-architecture ARQ_PSR of PSR is
+architecture Behavioral of PSR is
 
 begin
-	process(CLK, Reset, nzvc, nCWP)
+
+	process(reset,clk,nzvc,ncwp)
 	begin
-	
-		if(Reset = '1') then
-			CWP <= '0';
-			c <= '0';
-		
+		if reset='1' then
+			carry <= '0';
 		else
-			if(rising_edge(CLK)) then
-				CWP <= nCWP;
-				c <= nzvc(0);
+			if rising_edge(clk) then
+				carry<=nzvc(0);
+				icc <= nzvc;
+				cwp<=ncwp;
 			end if;
 		end if;
 	end process;
 	
-end ARQ_PSR;
 
+end Behavioral;
 

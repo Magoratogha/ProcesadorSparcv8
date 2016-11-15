@@ -1,43 +1,53 @@
+
 library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
+use IEEE.std_logic_1164.all;
+use IEEE.numeric_std.all;
+use IEEE.std_logic_unsigned.all;
 use std.textio.all;
 
 
-entity IM is
-    Port ( 
-			  address : in  STD_LOGIC_VECTOR (31 downto 0);
-           reset : in  STD_LOGIC;
-           outInst : out  STD_LOGIC_VECTOR (31 downto 0):= (others => '0'));
-end IM;
+entity instructionMemory is
+    Port ( cont : in  STD_LOGIC_VECTOR (31 downto 0);
+			  reset : in  STD_LOGIC;
+           instruction : out STD_LOGIC_VECTOR (31 downto 0)
+			 );
 
-architecture arqIM of IM is
+end instructionMemory;
 
-	type rom_type is array (0 to 63) of std_logic_vector (31 downto 0);
-		
-	impure function InitRomFromFile (RomFileName : in string) return rom_type is
-		FILE RomFile : text open read_mode is RomFileName;
-		variable RomFileLine : line;
-		variable temp_bv : bit_vector(31 downto 0);
-		variable temp_mem : rom_type;
-		begin
-			for I in rom_type'range loop
-				readline (RomFile, RomFileLine);
-				read(RomFileLine, temp_bv);
-				temp_mem(i) := to_stdlogicvector(temp_bv);
-			end loop;
-		return temp_mem;
-	end function;
-	
-	signal instructions : rom_type := InitRomFromFile("test.data");
-	
+architecture Behavioral of instructionMemory is
+
+
+type ram_type is array (0 to 63) of std_logic_vector (31 downto 0);
+
+impure function fill_ram (ram_file_name: in string) return ram_type is                                                   
+       FILE f : text is in ram_file_name;                       
+       variable l : line;                                 
+       variable ram  : ram_type;
+		 variable temp : bit_vector(31 downto 0);
+    begin                                                        
+       for I in ram_type'range loop                                  
+           readline (f, l);                             
+           read (l, temp);
+			  ram(I) := to_stdlogicvector(temp);  
+       end loop;                                                    
+       return ram;                                                  
+    end function;
+
+signal myRam: ram_type := fill_ram("test.data");
+
+
 begin
-	process(reset,address, instructions)
-	begin
-		if(reset = '1')then
-			outInst <= (others=>'0');
-		else
-			outInst <= instructions(conv_integer(address(5 downto 0)));
-		end if;
-	end process;
-end arqIM;
+
+process (cont,reset)
+begin
+
+	if reset = '1' then
+		instruction <= (others => '0');
+	else 
+		instruction <= myRam(conv_integer(cont(5 downto 0)));
+	end if;
+
+end process;
+
+end Behavioral;
+

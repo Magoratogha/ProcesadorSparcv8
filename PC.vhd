@@ -1,23 +1,33 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH;
+use IEEE.STD_LOGIC_UNSIGNED;
 
+entity ProgramCounter is
+    Port ( clk : in  STD_LOGIC;
+           Reset : in  STD_LOGIC;
+           InAddress : in  STD_LOGIC_VECTOR (31 downto 0);
+           OutAddress : out  STD_LOGIC_VECTOR (31 downto 0):= (others => '0'));
+end ProgramCounter;
 
-entity PC is
-    Port ( address : in  STD_LOGIC_VECTOR (31 downto 0);
-           clk : in  STD_LOGIC;
-			  reset : in  STD_LOGIC;
-           nextInst : out  STD_LOGIC_VECTOR (31 downto 0):= (others => '0'));
-end PC;
-
-architecture arqPC of PC is
+architecture Behavioral of ProgramCounter is
 
 begin
-	process(clk,reset)
+
+	process(clk,Reset)
+
 	begin
-		if(reset = '1')then
-			nextInst <= (others=>'0');
-		elsif rising_edge(clk) then
-			nextInst <= address;
+
+		if Reset = '1' then 
+			OutAddress <= "00000000000000000000000000000000";
+		elsif rising_edge(clk) then 
+			OutAddress <= InAddress;
+			
 		end if;
 	end process;
-end arqPC;
+
+
+
+
+end Behavioral;
+

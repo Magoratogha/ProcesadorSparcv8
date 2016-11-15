@@ -1,22 +1,31 @@
+
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
 
-entity EX_SIG is
-    Port ( DATO : in  STD_LOGIC_VECTOR (12 downto 0);
-           SALIDA : out  STD_LOGIC_VECTOR (31 downto 0):= (others => '0'));
-end EX_SIG;
 
-architecture arqEX_SIG of EX_SIG is
+entity SEU is
+    Port ( imm13 : in  STD_LOGIC_VECTOR (12 downto 0);
+           imm32 : out  STD_LOGIC_VECTOR (31 downto 0));
+end SEU;
+
+architecture Behavioral of SEU is
+
+signal aux1: std_logic_vector(18 downto 0):=(others=>'0');
+signal aux2: std_logic_vector(18 downto 0):=(others=>'1');
 
 begin
-	process(DATO)
-		begin
-			if(DATO(12) = '1')then
-				SALIDA<= "1111111111111111111" & DATO;
-			else
-				SALIDA<= "0000000000000000000" & DATO;
-			end if;
-	end process;
-end arqEX_SIG;
+
+process(imm13)
+	begin
+	
+		if(imm13(12) = '0') then 
+			imm32 <= aux1 & imm13;
+		else 
+			imm32 <= aux2 & imm13;
+		end if;
+		
+end process;
+		
+end Behavioral;
 

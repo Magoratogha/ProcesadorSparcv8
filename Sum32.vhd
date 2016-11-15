@@ -1,20 +1,26 @@
+
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
 
 
-entity Sum32 is
-    Port ( op1 : in  STD_LOGIC_VECTOR (31 downto 0);
-           op2 : in  STD_LOGIC_VECTOR (31 downto 0);
-           res : out  STD_LOGIC_VECTOR (31 downto 0):= (others => '0'));
-end Sum32;
+entity Sumador is
+    Port ( constante : in  STD_LOGIC_VECTOR (31 downto 0);
+           data : in  STD_LOGIC_VECTOR (31 downto 0);
+           data_out : out  STD_LOGIC_VECTOR (31 downto 0));
+end Sumador;
 
-architecture arqSum32 of Sum32 is
+architecture Behavioral of Sumador is
+
+--signal constante: std_logic_vector(31 downto 0):= "00000000000000000000000000000100";
+--signal aux: std_logic_vector(31 downto 0):=(others=>'0');
 
 begin
-	process(op1,op2)
+	process (data)
 		begin
-			res <= op1 + op2;
+			data_out<=data+constante;
 	end process;
 
-end arqSum32;
+end Behavioral;
+

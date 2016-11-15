@@ -1,45 +1,48 @@
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
+use IEEE.numeric_std.all;
+use IEEE.std_logic_unsigned.all;
+use std.textio.all;
 
 
 entity RF is
-    Port ( 
-           reset : in  STD_LOGIC;
-           rs1 : in  STD_LOGIC_VECTOR (5 downto 0);
+    Port ( rs1 : in  STD_LOGIC_VECTOR (5 downto 0);
            rs2 : in  STD_LOGIC_VECTOR (5 downto 0);
-           rd: in  STD_LOGIC_VECTOR (5 downto 0);
-			  WE : in  STD_LOGIC;
-			  dato : in STD_LOGIC_VECTOR (31 downto 0);
-           crs1 : out  STD_LOGIC_VECTOR (31 downto 0):= (others => '0');
-           crs2 : out  STD_LOGIC_VECTOR (31 downto 0):= (others => '0');
-			  crd : out  STD_LOGIC_VECTOR (31 downto 0):= (others => '0'));
+           rd : in  STD_LOGIC_VECTOR (5 downto 0);
+			  dwr : in  STD_LOGIC_VECTOR (31 downto 0);
+			  reset : in  STD_LOGIC;
+           crs1 : out  STD_LOGIC_VECTOR (31 downto 0);
+           crs2 : out  STD_LOGIC_VECTOR (31 downto 0);
+			  cRD : out  STD_LOGIC_VECTOR (31 downto 0);
+			  we : in std_logic);
 end RF;
 
-architecture arqRF of RF is
+architecture Behavioral of RF is
 
-	type ram_type is array (0 to 39) of std_logic_vector (31 downto 0);
-	signal registers : ram_type :=(others => x"00000000");
+type reg is array (0 to 39) of std_logic_vector (31 downto 0);
+
+
+signal myReg: reg; 
 
 begin
-
-	process(reset,rs1,rs2,rd,dato,WE)
-	begin
-			if(reset = '1')then
-				crs1 <= (others=>'0');
-				crs2 <= (others=>'0');
-				crd <= (others=>'0');
-				registers <= (others => x"00000000");
-			else
-				crs1 <= registers(conv_integer(rs1));
-				crs2 <= registers(conv_integer(rs2));
-				crd <= registers(conv_integer(rd));
-			   if (WE = '1' and rd /= "000000")then
-					registers(conv_integer(rd)) <= dato;
-				end if;
-			end if;
+process(rs1,rs2,rd,dwr,reset)
+	begin 
+		myReg(0) <= x"00000000";
+		if reset = '0' then
+			if((rd/="00000") and (we = '1'))then
+				Myreg(conv_integer(rd)) <= dwr; 
+			end if;			
+			crs1 <= Myreg(conv_integer(rs1));
+			crs2 <= Myreg(conv_integer(rs2));
+			cRD <= Myreg(conv_integer(rd));
+		else
+			myReg <= (others => x"00000000");
+			crs1 <= (others => '0');
+			crs2 <= (others => '0');
+			cRD <= (others => '0');
+		end if;
 	end process;
-	
-end arqRF;
+		
+end Behavioral;
 

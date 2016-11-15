@@ -11,25 +11,25 @@ use IEEE.STD_LOGIC_1164.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity SEU22 is
-Port ( imm22 : in  STD_LOGIC_VECTOR (21 downto 0);
+entity SEU30 is
+Port ( imm30 : in  STD_LOGIC_VECTOR (29 downto 0);
        imm32 : out  STD_LOGIC_VECTOR (31 downto 0));
-end SEU22;
+end SEU30;
 
-architecture Behavioral of SEU22 is
+architecture Behavioral of SEU30 is
 
-signal aux1: std_logic_vector(9 downto 0):=(others=>'0');
-signal aux2: std_logic_vector(9 downto 0):=(others=>'1');
+signal aux1: std_logic_vector(1 downto 0):=(others=>'0');
+signal aux2: std_logic_vector(1 downto 0):=(others=>'1');
 
 begin
 
-process(imm22)
+process(imm30)
 	begin
 	
-		if(imm22(21) = '0') then 
-			imm32 <= aux1 & imm22;
+		if(imm30(29) = '0') then 
+			imm32 <= aux1 & imm30;
 		else 
-			imm32 <= aux2 & imm22;
+			imm32 <= aux2 & imm30;
 		end if;
 		
 end process;

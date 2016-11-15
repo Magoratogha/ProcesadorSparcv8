@@ -1,62 +1,79 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.numeric_std.all;
+use IEEE.std_logic_unsigned.all;
+use std.textio.all;
 
-entity PSRModifier is
-	Port (
-			rst : in STD_LOGIC;
-			aluResult : in STD_LOGIC_VECTOR (31 downto 0);
-			operando1 : in STD_LOGIC_VECTOR (31 downto 0);
-			operando2 : in STD_LOGIC_VECTOR (31 downto 0);
-			aluOp : in STD_LOGIC_VECTOR (5 downto 0);
-			nzvc : out STD_LOGIC_VECTOR (3 downto 0)
-	);
-end PSRModifier;
+-- SUBcc: 001000
+-- SUBxcc: 001010
+-- ANDcc : 001011
+-- ANDNcc : 001100
+-- ORcc : 001101
+-- ORNcc : 001110
+-- XORcc : 001111
+-- XNORcc : 010000
+-- ADDxcc : 010010
+-- ADDcc : 010011
 
-architecture Arq_PSRM of PSRModifier is
+entity PSR_Modifier is
+    Port ( ALUOP : in  STD_LOGIC_VECTOR (5 downto 0);
+           ALU_Result : in  STD_LOGIC_VECTOR (31 downto 0);
+           Crs1 : in  STD_LOGIC_VECTOR (31 downto 0);
+           Crs2 : in  STD_LOGIC_VECTOR (31 downto 0);
+           nzvc : out  STD_LOGIC_VECTOR (3 downto 0);
+			  reset: in STD_LOGIC
+			  );
+end PSR_Modifier;
 
+architecture Behavioral of PSR_Modifier is
+
+
+
+begin
+
+	process(ALUOP, ALU_Result, Crs1, Crs2,reset)
 	begin
-		process(aluResult,operando1,operando2,aluOp,rst)
-		begin
-		
-		if(rst = '1') then
-			nzvc <= "0000";
+		if (reset = '1') then
+			nzvc <= (others=>'0');
 		else
-			--ANDcc, ANDNcc, ORcc, ORNcc, XORcc, XNORcc
-			if(aluOp = "001111" or aluOp = "010001" or aluOp ="001110" or aluOp ="010010" or aluOp ="010000" or aluOp ="010011")then
-				nzvc(3) <= aluResult(31); --n 
-				if(aluResult = "00000000000000000000000000000000")then
-					nzvc(2) <= '1'; --z
+			-- ANDcc or ANDNcc or ORcc or ORNcc or XORcc or XNORcc
+			if (ALUOP="001011" OR ALUOP="001100" OR ALUOP="001101" OR ALUOP="001110" OR ALUOP="001111" OR ALUOP="010000") then
+				nzvc(3) <= ALU_result(31);--el signo que traiga
+				if (conv_integer(ALU_result)=0) then
+					nzvc(2) <= '1';--porque el resultado da cero
 				else
-					nzvc(2) <= '0'; --z
+					nzvc(2) <= '0';
 				end if;
-			nzvc(1) <='0'; --v
-			nzvc(0) <= '0'; --c
+				nzvc(1) <= '0';--los operadores logicos no generan overflow ni carry
+				nzvc(0) <= '0';
 			end if;
 			
-			--ADDcc, ADDxcc
-			if(aluOp = "001000" or aluOp ="001011")then
-				nzvc(3) <= aluResult(31); --n
-				if(aluResult = "00000000000000000000000000000000")then
-					nzvc(2) <= '1'; --z
+			-- ADDcc or ADDxcc
+			if (ALUOP="010011" or ALUOP="010010") then
+				nzvc(3) <= ALU_result(31);
+				if (conv_integer(ALU_result)=0) then
+					nzvc(2) <= '1';
 				else
-					nzvc(2) <= '0'; --z
+					nzvc(2) <= '0';
 				end if;
-				nzvc(1) <= ((operando1(31) and operando2(31) and (not aluResult(31))) or ((not operando1(31)) and (not operando2(31)) and aluResult(31))); --v
-				nzvc(0) <= (operando1(31) and operando2(31)) or ((not aluResult(31)) and (operando1(31) or operando2(31))); --c
-			end if; 
+				nzvc(1) <= (Crs1(31) and Crs2(31) and (not ALU_result(31))) or ((not Crs1(31)) and (not Crs2(31)) and ALU_result(31));
+				nzvc(0) <= (Crs1(31) and Crs2(31)) or ((not ALU_result(31)) and (Crs1(31) or Crs2(31)) );
+			end if;
 			
-			--SUBcc, SUBxcc
-			if(aluOp = "001001" or aluOp = "001101")then
-				nzvc(3) <= aluResult(31); --n
-				if(aluResult = "00000000000000000000000000000000")then
-					nzvc(2) <= '1'; --z
+			--SUBcc or SUBxcc
+			if (ALUOP="001000" or ALUOP="001010") then
+				nzvc(3) <= ALU_result(31);
+				if (conv_integer(ALU_result)=0) then
+					nzvc(2) <= '1';
 				else
-					nzvc(2) <= '0'; --z
+					nzvc(2) <= '0';
 				end if;
-				nzvc(1) <= ((operando1(31) and(not operando2(31)) and (not aluResult(31))) or (not operando1(31) and operando2(31) and aluResult(31))); --v
-				nzvc(0) <= ((not operando1(31)) and operando2(31)) or (aluResult(31) and ((not operando1(31)) or operando2(31))); --c
+				nzvc(1) <= (Crs1(31) and (not Crs2(31)) and (not ALU_result(31))) or ((not Crs1(31)) and Crs2(31) and ALU_result(31));
+				nzvc(0) <= ((not Crs1(31)) and Crs2(31)) or (ALU_result(31) and ((not Crs1(31)) or Crs2(31)));
 			end if;
 		end if;
-		end process;
-end Arq_PSRM;
+		
+	end process;
+	
+end Behavioral;
 
