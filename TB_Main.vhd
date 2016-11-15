@@ -1,55 +1,65 @@
+
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
+
+--USE ieee.numeric_std.ALL;
  
-ENTITY TB_Main IS
-END TB_Main;
+ENTITY Processor4_TB IS
+END Processor4_TB;
  
-ARCHITECTURE behavior OF TB_Main IS 
+ARCHITECTURE behavior OF Processor4_TB IS 
  
-    COMPONENT Main
+    -- Component Declaration for the Unit Under Test (UUT)
+ 
+    COMPONENT tercerProcesador
     PORT(
-         Rst : IN  std_logic;
-         Clk : IN  std_logic;
-         ALUResult : OUT  std_logic_vector(31 downto 0)
+         reset : IN  std_logic;
+         result : OUT  std_logic_vector(31 downto 0);
+         clk : IN  std_logic
         );
     END COMPONENT;
     
 
    --Inputs
-   signal Rst : std_logic := '0';
-   signal Clk : std_logic := '0';
+   signal reset : std_logic := '0';
+   signal clk : std_logic := '0';
 
  	--Outputs
-   signal ALUResult : std_logic_vector(31 downto 0);
+   signal result : std_logic_vector(31 downto 0);
 
    -- Clock period definitions
-   constant Clk_period : time := 20 ns;
+   constant clk_period : time := 20 ns;
  
 BEGIN
  
-  uut: Main PORT MAP (
-          Rst => Rst,
-          Clk => Clk,
-          ALUResult => ALUResult
+	-- Instantiate the Unit Under Test (UUT)
+   uut: tercerProcesador PORT MAP (
+          reset => reset,
+          result => result,
+          clk => clk
         );
 
    -- Clock process definitions
-   Clk_process :process
+   clk_process :process
    begin
-		Clk <= '0';
-		wait for Clk_period/2;
-		Clk <= '1';
-		wait for Clk_period/2;
+		clk <= '0';
+		wait for clk_period/2;
+		clk <= '1';
+		wait for clk_period/2;
    end process;
  
 
    -- Stimulus process
    stim_proc: process
    begin		
-      Rst <= '1';
-      wait for 10 ns;
-		Rst <= '0';
-		wait;
+      reset <= '1';
+		
+      wait for 100 ns;	
+
+		reset <= '0';
+		wait for 1 ms;
+
+      wait;
    end process;
 
 END;
